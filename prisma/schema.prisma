@@ -1,0 +1,29 @@
+generator client {
+  provider = "prisma-client-js"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model CommunityMember {
+  id           Int          @id @default(autoincrement())
+  fullName     String
+  email        String       @unique
+  phoneNumber  String
+  joinedAt     DateTime     @default(now())
+  jobHistory   JobHistory[] // one-to-many relation
+}
+
+model JobHistory {
+  id                Int             @id @default(autoincrement())
+  communityMemberId Int
+  jobTitle          String
+  companyName       String
+  startDate         DateTime
+  endDate           DateTime?
+  
+  communityMember   CommunityMember @relation(fields: [communityMemberId], references: [id])
+}
