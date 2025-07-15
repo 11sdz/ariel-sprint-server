@@ -48,4 +48,14 @@ const updateMemberController = async ({ where, data }) => {
     }
 };
 
-module.exports = { createMemberController, getMembersController, updateMemberController };
+const getMemberByIdController = async ({ where }) => {
+    try {
+        const getMember = await prisma.communityMember.findUnique({ where });
+        return getMember;
+    } catch (error) {
+        console.error("Error in getMemberByIdController:", error);
+        throw error;
+    }
+};
+
+module.exports = {getMemberByIdController ,createMemberController, getMembersController, updateMemberController };

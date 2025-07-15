@@ -1,7 +1,8 @@
 const {
     createMemberController,
     getMembersController,
-    updateMemberController
+    updateMemberController,
+    getMemberByIdController
 } = require("../controllers/memberController");
 
 const createMember = async (req, res) => {
@@ -39,4 +40,17 @@ const updateMember = async (req, res) => {
     }
 };
 
-module.exports = { createMember, getAllMembers, updateMember };
+const getMemberByID = async (req, res) => {
+    try {
+        const memberId = Number(req.params.id);
+        const getMember = await getMemberByIdController({
+            where: { id: memberId }
+        });
+        res.json(getMember);
+    } catch (error) {
+        console.error("Error getting member:", error);
+        res.status(500).json({ error: "Failed to get member" });
+    }
+};
+
+module.exports = { getMemberByID , createMember, getAllMembers, updateMember };
