@@ -3,6 +3,7 @@ const cors = require("cors");
 const dotenv = require("dotenv");
 const prisma = require("./prismaClient");
 const memberRoutes = require("./routes/memberRoutes")
+const groupsRoutes = require("./routes/groupsRoutes")
 
 dotenv.config();
 const app = express();
@@ -15,6 +16,7 @@ app.get("/", (req, res) => {
 });
 
 app.use('/api', memberRoutes);
+app.use('/api', groupsRoutes)
 
 
 async function main() {
