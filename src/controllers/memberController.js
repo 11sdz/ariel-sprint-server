@@ -18,4 +18,26 @@ const createMemberController = async (data) => {
     return newMember
 }
 
-module.exports = {createMemberController}
+const getMembersController = async () => {
+    const members = await prisma.communityMember.findMany({
+        include: {
+            job_history: {
+              select: {
+                role: true,
+                company_name: true,
+                start_date: true,
+                end_date: true,
+              }
+            },
+            groups: {
+              select: {
+                community_name: true
+              }
+            }
+          }
+    });
+    return members;
+  }
+  
+
+module.exports = {createMemberController, getMembersController}
