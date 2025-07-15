@@ -27,7 +27,8 @@ const getAllMembers = async (req, res) => {
 
 const updateMember = async (req, res) => {
     try {
-        const memberId = Number({where: req.params.id});
+        const memberId = Number(req.params.id);
+
         const updateData = req.body;
         const updatedMember  = await updateMemberController({
             where: { id: memberId },
