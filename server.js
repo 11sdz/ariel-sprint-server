@@ -27,17 +27,7 @@ app.post('/auth/linkedin/token', async (req, res) => {
       params: params,
     });
     const accessToken = tokenResp.data.access_token;
-    console.log(accessToken);
-
-    // שליפה של מידע משתמש
-    // const profile = await axios.get('https://api.linkedin.com/v2/me', {
-    //   headers: { Authorization: `Bearer ${accessToken}` }
-    // });
-    // const emailRes = await axios.get('https://api.linkedin.com/v2/emailAddress?q=members&projection=(elements*(handle~))', {
-    //   headers: { Authorization: `Bearer ${accessToken}` }
-    // });
-
-    res.json({ token: accessToken, profile: profile.data, email: emailRes.data });
+    res.json({ token: accessToken });
   } catch (err) {
     console.error(err.response?.data || err.message);
     res.status(500).json({ error: err.toString() });
