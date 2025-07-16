@@ -46,7 +46,7 @@ app.post('/auth/linkedin/token', async (req, res) => {
     });
 
     const accessToken = tokenResp.data.access_token;
-    res.json({ token: accessToken });
+    res.json({ token: accessToken });   
   } catch (err) {
     console.error("LinkedIn OAuth Error:", err.response?.data || err.message);
     res.status(500).json({ error: err.toString() });

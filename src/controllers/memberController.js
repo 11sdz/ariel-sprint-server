@@ -49,6 +49,8 @@ const updateMemberController = async ({ where, data }) => {
 };
 
 const getMemberByIdController = async ({ where }) => {
+    console.log("wheererere", where);
+    
     try {
         const getMember = await prisma.communityMember.findUnique({
             where, // pass inside the options object
