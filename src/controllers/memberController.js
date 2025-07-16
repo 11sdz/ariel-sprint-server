@@ -14,6 +14,59 @@ const createMemberController = async (data) => {
     return newMember;
 };
 
+
+const createMemberLinkedinController = async (data) => {
+    const {
+      full_name,
+      email,
+      profile_img,
+      phone,
+      city,
+      wants_updates,
+      additional_info,
+      linkedin_url,
+      facebook_url,
+      community_value,
+      countryId,
+      job_history,
+      groups,
+    } = data;
+  
+    const existingMember = await prisma.communityMember.findUnique({
+        where: { email },
+      });
+    
+      if (existingMember) {
+        return existingMember;
+      }
+    
+
+    const newMember = await prisma.communityMember.create({
+      data: {
+        full_name,
+        email,
+        profile_img,
+        phone,
+        city,
+        wants_updates,
+        additional_info,
+        linkedin_url,
+        facebook_url,
+        community_value,
+        countryId,
+        job_history: {
+          create: job_history,  // מערך של אובייקטים
+        },
+        groups: {
+          connect: groups,      // מערך של אובייקטים {id: number}
+        },
+      },
+    });
+  
+    return newMember;
+  };
+  
+
 const getMembersController = async () => {
     const members = await prisma.communityMember.findMany({
         include: {
@@ -48,7 +101,7 @@ const updateMemberController = async ({ where, data }) => {
     }
 };
 
-const getMemberByIdController = async ({ where }) => {
+const getMemberByIdController = async ({ where }) => {    
     try {
         const getMember = await prisma.communityMember.findUnique({
             where, // pass inside the options object
@@ -80,4 +133,5 @@ module.exports = {
     createMemberController,
     getMembersController,
     updateMemberController,
+    createMemberLinkedinController
 };
