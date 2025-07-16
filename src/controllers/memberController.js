@@ -50,7 +50,24 @@ const updateMemberController = async ({ where, data }) => {
 
 const getMemberByIdController = async ({ where }) => {
     try {
-        const getMember = await prisma.communityMember.findUnique({ where });
+        const getMember = await prisma.communityMember.findUnique({
+            where, // pass inside the options object
+            include: {
+                job_history: {
+                    select: {
+                        role: true,
+                        company_name: true,
+                        start_date: true,
+                        end_date: true,
+                    },
+                },
+                groups: {
+                    select: {
+                        community_name: true,
+                    },
+                },
+            },
+        });
         return getMember;
     } catch (error) {
         console.error("Error in getMemberByIdController:", error);
@@ -58,4 +75,9 @@ const getMemberByIdController = async ({ where }) => {
     }
 };
 
-module.exports = {getMemberByIdController ,createMemberController, getMembersController, updateMemberController };
+module.exports = {
+    getMemberByIdController,
+    createMemberController,
+    getMembersController,
+    updateMemberController,
+};

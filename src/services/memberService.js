@@ -28,6 +28,7 @@ const getAllMembers = async (req, res) => {
 const updateMember = async (req, res) => {
     try {
         const memberId = Number(req.params.id);
+
         const updateData = req.body;
         const updatedMember  = await updateMemberController({
             where: { id: memberId },
@@ -40,17 +41,18 @@ const updateMember = async (req, res) => {
     }
 };
 
-const getMemberByID = async (req, res) => {
-    try {
-        const memberId = Number(req.params.id);
-        const getMember = await getMemberByIdController({
-            where: { id: memberId }
-        });
-        res.json(getMember);
-    } catch (error) {
-        console.error("Error getting member:", error);
-        res.status(500).json({ error: "Failed to get member" });
-    }
-};
+    const getMemberByID = async (req, res) => {
+        try {
+            const memberId = Number(req.params.id);
+            console.log("IDDD",memberId)
+            const getMember = await getMemberByIdController({
+                where: {id: memberId}
+            });
+            res.json(getMember);
+        } catch (error) {
+            console.error("Error getting member:", error);
+            res.status(500).json({ error: "Failed to get member" });
+        }
+    };
 
 module.exports = { getMemberByID , createMember, getAllMembers, updateMember };
