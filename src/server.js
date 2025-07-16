@@ -53,9 +53,9 @@ app.post('/auth/linkedin/token', async (req, res) => {
 
     // Request user information using the access token
     const userInfoResponse = await axios.get('https://api.linkedin.com/v2/userinfo', {
-      headers: {
-        'Authorization': `Bearer ${accessToken}`
-      }
+      // headers: {
+      //   'Authorization': `Bearer ${accessToken}`
+      // }
     });
 
     // Extract user information
