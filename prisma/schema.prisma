@@ -63,6 +63,7 @@ model CommunityGroup {
 
 model CommunityEvent {
   id            Int               @id @default(autoincrement())
+  event_name    String            
   start_date    DateTime
   end_date      DateTime
   location      String

@@ -1,3 +1,4 @@
+// prisma/seedEvents.js
 const { PrismaClient } = require('@prisma/client');
 const prisma = new PrismaClient();
 
@@ -6,7 +7,7 @@ async function seedEvents() {
   const allMembers = await prisma.communityMember.findMany();
 
   if (allGroups.length === 0 || allMembers.length === 0) {
-    console.error('❌ You must seed members and groups before seeding events.');
+    console.error('❌ Seed groups and members first before seeding events.');
     return;
   }
 
@@ -26,40 +27,54 @@ async function seedEvents() {
     'Tech for Good: Social impact hackathon.'
   ];
 
-  const getRandom = (arr) => arr[Math.floor(Math.random() * arr.length)];
+  function getRandom(arr) {
+    return arr[Math.floor(Math.random() * arr.length)];
+  }
 
   for (let i = 0; i < 10; i++) {
-    const randomGroups = allGroups.sort(() => 0.5 - Math.random()).slice(0, Math.floor(Math.random() * 2) + 1); // 1–2 groups
-    const randomMembers = allMembers.sort(() => 0.5 - Math.random()).slice(0, Math.floor(Math.random() * 3) + 3); // 3–5 members
+    const randomGroups = allGroups
+      .sort(() => 0.5 - Math.random())
+      .slice(0, Math.floor(Math.random() * 2) + 1); // 1–2 groups
+
+    const randomMembers = allMembers
+      .sort(() => 0.5 - Math.random())
+      .slice(0, Math.floor(Math.random() * 3) + 3); // 3–5 members
 
     const start = new Date();
-    start.setDate(start.getDate() + i * 7); // event each week
+    start.setDate(start.getDate() + i * 7); // event spaced a week apart
     const end = new Date(start);
-    end.setHours(end.getHours() + 3);
+    end.setHours(end.getHours() + 3); // 3-hour event
+
+    const eventType = getRandom(eventTypes);
+    const location = getRandom(locations);
+    const eventName = `${eventType} at ${location} #${Math.floor(Math.random() * 1000)}`;
 
     await prisma.communityEvent.create({
       data: {
         start_date: start,
         end_date: end,
-        location: getRandom(locations),
+        location,
         price: parseFloat((Math.random() * 50).toFixed(2)),
-        type: getRandom(eventTypes),
+        type: eventType,
         descriptions: getRandom(descriptions),
         event_img: getRandom(event_img),
-        groups: { connect: randomGroups.map((g) => ({ id: g.id })) },
-        participants: { connect: randomMembers.map((m) => ({ id: m.id })) }
+        groups: { connect: randomGroups.map(g => ({ id: g.id })) },
+        participants: { connect: randomMembers.map(m => ({ id: m.id })) },
+        event_name: eventName,  // added event_name here
       }
     });
 
-    console.log(`📅 Created event #${i + 1}`);
+    console.log(`📅 Created event #${i + 1} - ${eventName}`);
   }
-
-  await prisma.$disconnect();
 }
 
-seedEvents().catch((e) => {
-  console.error('❌ Error seeding events:', e);
-  prisma.$disconnect();
-  process.exit(1);
-});
-//
+seedEvents()
+  .then(() => {
+    console.log('✅ Events seeded successfully');
+    return prisma.$disconnect();
+  })
+  .catch((e) => {
+    console.error('❌ Error seeding events:', e);
+    prisma.$disconnect();
+    process.exit(1);
+  });

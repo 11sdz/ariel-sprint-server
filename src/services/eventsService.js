@@ -17,8 +17,8 @@ const createEvent = async(req,res)=>{
         const event = await createEventController(req.body)
         res.status(201).json(event);
     } catch (error) {
-        console.error("Failed to create group:", error);
-        res.status(500).json({ error: "Failed to create group " });
+        console.error("Failed to create event:", error);
+        res.status(500).json({ error: "Failed to create event " });
     }
 }
 

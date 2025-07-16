@@ -14,6 +14,7 @@ const getEventsController = async () => {
 // Create a new event
 const createEventController = async (data) => {
   const {
+    event_name,
     start_date,
     end_date,
     location,
@@ -27,6 +28,7 @@ const createEventController = async (data) => {
 
   const newEvent = await prisma.communityEvent.create({
     data: {
+      event_name,
       start_date: new Date(start_date),
       end_date: new Date(end_date),
       location,
