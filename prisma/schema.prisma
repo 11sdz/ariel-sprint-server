@@ -33,6 +33,7 @@ model CommunityMember {
   profile_img     String           @db.Text
 }
 
+
 model Country {
   id           Int               @id @default(autoincrement())
   country_name String
@@ -67,7 +68,9 @@ model CommunityEvent {
   end_date     DateTime
   location     String
   price        Float?
+  type          String
   descriptions String?
+  event_img      String?
   participants CommunityMember[] @relation("EventParticipants")
   groups       CommunityGroup[]  @relation("GroupEvents")
 }
