@@ -7,29 +7,30 @@ datasource db {
   provider = "mysql"
   url      = env("DATABASE_URL")
 }
-model CommunityMember {
-  id                  Int                @id @default(autoincrement())  
-  full_name           String
-  // english_name        String?                               
-  phone               String?                                
-  email               String           @unique               
-  city                String?                               
-  countryId           Int?                                   
-  country             Country?          @relation(fields: [countryId], references: [id])
 
-  job_history         JobHistory[]                           
-  groups              CommunityGroup[] @relation("MembersGroups")
-  events              CommunityEvent[] @relation("EventParticipants")
-  contributions       Contribution[]                         
-  linkedin_url        String?                                
-  facebook_url        String?                                
-  community_value     String?                              
+model CommunityMember {
+  id        Int      @id @default(autoincrement())
+  full_name String
+  // english_name        String?                               
+  phone     String?
+  email     String   @unique
+  city      String?
+  countryId Int?
+  country   Country? @relation(fields: [countryId], references: [id])
+
+  job_history     JobHistory[]
+  groups          CommunityGroup[] @relation("MembersGroups")
+  events          CommunityEvent[] @relation("EventParticipants")
+  contributions   Contribution[]
+  linkedin_url    String?
+  facebook_url    String?
+  community_value String?
   // years_of_experience Int?                                   
   // tags                String?                                
-  additional_info     String?                                
-  wants_updates       Boolean?           @default(false)     
-  admin_notes         String?  
-  profile_img         String                              
+  additional_info String?
+  wants_updates   Boolean?         @default(false)
+  admin_notes     String?
+  profile_img     String           @db.Text
 }
 
 
@@ -41,7 +42,7 @@ model Country {
 }
 
 model JobHistory {
-  id                Int               @id @default(autoincrement())
+  id                Int       @id @default(autoincrement())
   communityMemberId Int
   company_name      String
   role              String
@@ -49,36 +50,36 @@ model JobHistory {
   end_date          DateTime?
   descriptions      String?
 
-  community_member  CommunityMember  @relation(fields: [communityMemberId], references: [id])
+  community_member CommunityMember @relation(fields: [communityMemberId], references: [id])
 }
 
 model CommunityGroup {
-  id               Int               @id @default(autoincrement())
-  community_name   String
-  description      String?
-  created_at       DateTime          @default(now())
-  members          CommunityMember[] @relation("MembersGroups")
-  events           CommunityEvent[]  @relation("GroupEvents")
+  id             Int               @id @default(autoincrement())
+  community_name String
+  description    String?
+  created_at     DateTime          @default(now())
+  members        CommunityMember[] @relation("MembersGroups")
+  events         CommunityEvent[]  @relation("GroupEvents")
 }
 
 model CommunityEvent {
-  id            Int               @id @default(autoincrement())
-  start_date    DateTime
-  end_date      DateTime
-  location      String
-  price         Float?
+  id           Int               @id @default(autoincrement())
+  start_date   DateTime
+  end_date     DateTime
+  location     String
+  price        Float?
   type          String
-  descriptions  String?
+  descriptions String?
   event_img      String?
-  participants  CommunityMember[] @relation("EventParticipants")
-  groups        CommunityGroup[]  @relation("GroupEvents")
+  participants CommunityMember[] @relation("EventParticipants")
+  groups       CommunityGroup[]  @relation("GroupEvents")
 }
 
 model Contribution {
-  id                Int               @id @default(autoincrement())
+  id                Int      @id @default(autoincrement())
   communityMemberId Int
   description       String
-  date              DateTime          @default(now())
+  date              DateTime @default(now())
 
-  member            CommunityMember   @relation(fields: [communityMemberId], references: [id])
+  member CommunityMember @relation(fields: [communityMemberId], references: [id])
 }
