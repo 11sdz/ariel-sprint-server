@@ -7,7 +7,7 @@ const cors = require('cors');
 app.use(cors())
 app.use(express.json());
 const { LINKEDIN_CLIENT_ID, LINKEDIN_CLIENT_SECRET, CALLBACK_URL } = process.env;
-console.log({ LINKEDIN_CLIENT_ID, LINKEDIN_CLIENT_SECRET, CALLBACK_URL });
+// console.log({ LINKEDIN_CLIENT_ID, LINKEDIN_CLIENT_SECRET, CALLBACK_URL });
 
 
 app.post('/auth/linkedin/token', async (req, res) => {
@@ -21,13 +21,31 @@ app.post('/auth/linkedin/token', async (req, res) => {
       client_id: LINKEDIN_CLIENT_ID,
       client_secret: LINKEDIN_CLIENT_SECRET,
     }
-    console.log(params);
+    // console.log(params);
 
     const tokenResp = await axios.post('https://www.linkedin.com/oauth/v2/accessToken', null, {
       params: params,
     });
     const accessToken = tokenResp.data.access_token;
-    res.json({ token: accessToken });
+    const expiresIn = tokenResp.data.expires_in;
+    const expireTime = new Date(Date.now() + expiresIn * 1000);
+    const scope = tokenResp.data.scope;
+    console.log('Access token: ', accessToken);
+    console.log('Expire: ', expireTime);
+    console.log('Scope: ', scope);
+
+
+
+    // res.json({ token: accessToken });
+    const userInfoResponse = await axios.get('https://api.linkedin.com/v2/userinfo', {
+      headers: {
+        'Authorization': `Bearer ${accessToken}`
+      }
+    });
+
+    const userInfo = userInfoResponse.data;
+    console.log(userInfo);
+
   } catch (err) {
     console.error(err.response?.data || err.message);
     res.status(500).json({ error: err.toString() });
