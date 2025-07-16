@@ -6,6 +6,7 @@ const {
     createMemberLinkedinController,
 } = require('../controllers/memberController');
 const { faker } = require('@faker-js/faker');
+const { suggestGroupsForUser } = require('../openai/suggestGroups');
 
 const createMember = async (req, res) => {
     try {
@@ -19,53 +20,51 @@ const createMember = async (req, res) => {
 
 const createMemberFromLinkedIn = async (data) => {
     try {
-      const full_name = data.name;
-      const email = data.email;
-      const profile_img = data.picture;
-  
-      const jobHistoryData = [
-        {
-          role: faker.person.jobTitle(),
-          company_name: faker.company.name(),
-          start_date: faker.date.past(5),
-          end_date: faker.date.past(1),
-          descriptions: faker.lorem.lines(1),
-        },
-        {
-          role: faker.person.jobTitle(),
-          company_name: faker.company.name(),
-          start_date: faker.date.past(1),
-          end_date: null,
-          descriptions: faker.lorem.lines(1),
-        },
-      ];
-  
-      const groupIds = [1, 2];
-      const memberData = {
-        full_name,
-        email,
-        profile_img,
-        phone: faker.phone.number(),
-        city: faker.location.city(),
-        wants_updates: Math.random() < 0.5,
-        additional_info: faker.lorem.paragraph(),
-        linkedin_url: `https://linkedin.com/in/${faker.internet.username()}`,
-        facebook_url: faker.internet.url(),
-        community_value: faker.company.buzzPhrase(),
-        countryId: 1,
-        job_history: jobHistoryData, // ישיר, לא עטוף ב-create
-        groups: groupIds.map((id) => ({ id })), // גם כן ישיר
-      };
-    
-      const member = await createMemberLinkedinController(memberData);
-      return member;
+        const full_name = data.name;
+        const email = data.email;
+        const profile_img = data.picture;
+
+        const jobHistoryData = [
+            {
+                role: faker.person.jobTitle(),
+                company_name: faker.company.name(),
+                start_date: faker.date.past(5),
+                end_date: faker.date.past(1),
+                descriptions: faker.lorem.lines(1),
+            },
+            {
+                role: faker.person.jobTitle(),
+                company_name: faker.company.name(),
+                start_date: faker.date.past(1),
+                end_date: null,
+                descriptions: faker.lorem.lines(1),
+            },
+        ];
+
+        const groupIds = [1, 2];
+        const memberData = {
+            full_name,
+            email,
+            profile_img,
+            phone: faker.phone.number(),
+            city: faker.location.city(),
+            wants_updates: Math.random() < 0.5,
+            additional_info: faker.lorem.paragraph(),
+            linkedin_url: `https://linkedin.com/in/${faker.internet.username()}`,
+            facebook_url: faker.internet.url(),
+            community_value: faker.company.buzzPhrase(),
+            countryId: 1,
+            job_history: jobHistoryData, // ישיר, לא עטוף ב-create
+            groups: groupIds.map((id) => ({ id })), // גם כן ישיר
+        };
+
+        const member = await createMemberLinkedinController(memberData);
+        return member;
     } catch (error) {
-      console.error('Failed to create member:', error);
-      throw error;
+        console.error('Failed to create member:', error);
+        throw error;
     }
-  };
-  
-  
+};
 
 const getAllMembers = async (req, res) => {
     try {
@@ -93,7 +92,7 @@ const updateMember = async (req, res) => {
     }
 };
 
-const getMemberByID = async (req, res) => {
+const getMemberById = async (req, res) => {
     try {
         const memberId = Number(req.params.id);
         console.log('IDDD', memberId);
@@ -107,4 +106,22 @@ const getMemberByID = async (req, res) => {
     }
 };
 
-module.exports = { getMemberByID, createMember, getAllMembers, updateMember, createMemberFromLinkedIn };
+const getSuggestedGroups = async (req, res) => {
+    try {
+        const userId = Number(req.params.memberId);
+        console.log('params:', req.params);
+        
+        if (isNaN(userId)) {
+            return res.status(400).json({ error: 'Invalid user ID' });
+        }
+
+        const suggestions = await suggestGroupsForUser(userId);
+
+        res.json({ suggestions });
+    } catch (error) {
+        console.error('Error getting suggested groups:', error);
+        res.status(500).json({ error: error.message || 'Internal Server Error' });
+    }
+};
+
+module.exports = { getMemberById, createMember, getAllMembers, updateMember, createMemberFromLinkedIn, getSuggestedGroups };
