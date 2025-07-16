@@ -38,6 +38,7 @@ app.post('/auth/linkedin/token', async (req, res) => {
 
     console.log("LinkedIn OAuth Params:", params);
 
+    // Request access token from LinkedIn
     const tokenResp = await axios.post('https://www.linkedin.com/oauth/v2/accessToken', null, {
       params: params,
       headers: {
@@ -46,7 +47,21 @@ app.post('/auth/linkedin/token', async (req, res) => {
     });
 
     const accessToken = tokenResp.data.access_token;
-    res.json({ token: accessToken });
+    const expiresIn = tokenResp.data.expires_in;
+    const expireTime = new Date(Date.now() + expiresIn * 1000);
+    const scope = tokenResp.data.scope;
+
+    // Request user information using the access token
+    const userInfoResponse = await axios.get('https://api.linkedin.com/v2/userinfo', {
+      headers: {
+        'Authorization': `Bearer ${accessToken}`
+      }
+    });
+
+    // Extract user information
+    const userInfo = userInfoResponse.data;
+    console.log(userInfo);
+
   } catch (err) {
     console.error("LinkedIn OAuth Error:", err.response?.data || err.message);
     res.status(500).json({ error: err.toString() });
