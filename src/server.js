@@ -6,6 +6,8 @@ const memberRoutes = require("./routes/memberRoutes")
 const groupsRoutes = require("./routes/groupsRoutes")
 const eventsRoutes = require("./routes/eventsRoutes")
 const authRoutes = require("./routes/authRoutes")
+const cvRoutes = require("./routes/cvRoutes");
+
 
 dotenv.config();
 const app = express();
@@ -21,6 +23,7 @@ app.use('/api', memberRoutes);
 app.use('/api', groupsRoutes);
 app.use('/api', eventsRoutes);
 app.use('/api', authRoutes)
+app.use("/api", cvRoutes);
 
 async function main() {
   try {
