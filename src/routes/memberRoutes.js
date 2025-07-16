@@ -1,10 +1,12 @@
 const express = require("express");
-const { createMember, getAllMembers } = require("../services/memberService")
+const {getMemberByID ,createMember, getAllMembers , updateMember } = require("../services/memberService")
 
 
 const router = express.Router();
 
 router.post('/members', createMember);
 router.get('/members', getAllMembers);
+router.get('/members/:id', getMemberByID);
+router.patch('/members/:id', updateMember);
 
 module.exports = router;
