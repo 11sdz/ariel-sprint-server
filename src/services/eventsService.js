@@ -1,4 +1,4 @@
-const {getEventsController,createEventController} = require('../controllers/eventsController');
+const {getEventsController,createEventController,getEventByIdController} = require('../controllers/eventsController');
 
 const getAllEvents = async (req , res) =>{
     try{
@@ -22,4 +22,18 @@ const createEvent = async(req,res)=>{
     }
 }
 
-module.exports={createEvent,getAllEvents}
+const getEventById = async (req, res) => {
+    try {
+        const eventId = Number(req.params.id);
+        console.log(eventId)
+        const getEvent = await getEventByIdController({
+            where: { id: eventId },
+        });
+        res.json(getEvent);
+    } catch (error) {
+        console.error('Error getting event :', error);
+        res.status(500).json({ error: 'Failed to get event' });
+    }
+};
+
+module.exports={createEvent,getAllEvents,getEventById}
