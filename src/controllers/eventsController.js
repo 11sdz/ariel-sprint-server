@@ -96,8 +96,22 @@ const getEventByIdController = async ({ where }) => {
     }
 };
 
+const updateParticipantByIdController = async ({ where, data }) => {
+    try {
+        const updateEvent = await prisma.communityEventParticipant.update({
+            where,
+            data,
+        });
+        return updateEvent;
+    } catch (error) {
+        console.error("Error in updateMemberController:", error);
+        throw error;
+    }
+};
+
 module.exports = {
     createEventController,
     getEventsController,
     getEventByIdController,
+    updateParticipantByIdController
 };
