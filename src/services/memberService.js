@@ -55,8 +55,8 @@ const createMemberFromLinkedIn = async (data) => {
             facebook_url: faker.internet.url(),
             community_value: faker.company.buzzPhrase(),
             countryId: 1,
-            job_history: jobHistoryData, // ישיר, לא עטוף ב-create
-            groups: groupIds.map((id) => ({ id })), // גם כן ישיר
+            job_history: jobHistoryData, 
+            groups: groupIds.map((id) => ({ id })),
         };
 
         const member = await createMemberLinkedinController(memberData);
@@ -96,7 +96,7 @@ const updateMember = async (req, res) => {
 const updateMemberGroups = async (req, res) => {
     try {
         const memberId = Number(req.params.id);
-        const { groupIds } = req.body; // expecting: { groupIds: [1, 2, 3] }
+        const { groupIds } = req.body; 
 
         const updatedMember = await updateMemberGroupsController({
             memberId,

@@ -1,4 +1,3 @@
-// services/cvService.js
 const { parseCV: parseCVInner } = require("../cv/process");
 
 async function parseCV(req, res) {

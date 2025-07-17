@@ -55,10 +55,10 @@ const createMemberLinkedinController = async (data) => {
         community_value,
         countryId,
         job_history: {
-          create: job_history,  // מערך של אובייקטים
+          create: job_history, 
         },
         groups: {
-          connect: groups,      // מערך של אובייקטים {id: number}
+          connect: groups,    
         },
       },
     });
@@ -110,11 +110,11 @@ const updateMemberGroupsController = async ({ memberId, groupIds }) => {
             where: { id: memberId },
             data: {
                 groups: {
-                    connect: validGroupIds.map((id) => ({ id })), // removes existing and sets new ones
+                    connect: validGroupIds.map((id) => ({ id })), 
                 },
             },
             include: {
-                groups: true, // include groups in response if needed
+                groups: true, 
             },
         });
 

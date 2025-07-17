@@ -1,4 +1,3 @@
-// routes/cvRoutes.js
 const express = require("express");
 const multer = require("multer");
 const { parseCV } = require("../services/cvService");
