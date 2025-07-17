@@ -11,34 +11,48 @@ datasource db {
 model CommunityMember {
   id        Int      @id @default(autoincrement())
   full_name String
-  // english_name        String?                               
   phone     String?
   email     String   @unique
   city      String?
   countryId Int?
   country   Country? @relation(fields: [countryId], references: [id])
 
-  job_history     JobHistory[]
-  groups          CommunityGroup[] @relation("MembersGroups")
-  events          CommunityEvent[] @relation("EventParticipants")
-  contributions   Contribution[]
-  linkedin_url    String?
-  facebook_url    String?
-  community_value String?
-  // years_of_experience Int?                                   
-  // tags                String?                                
-  additional_info String?
-  wants_updates   Boolean?         @default(false)
-  admin_notes     String?
-  profile_img     String           @db.Text
+  job_history      JobHistory[]
+  groups           CommunityGroup[]   @relation("MembersGroups")
+  events           CommunityEvent[]   @relation("EventParticipants")
+  contributions    Contribution[]
+  linkedin_url     String?
+  facebook_url     String?
+  community_value  String?
+  additional_info  String?
+  wants_updates    Boolean?           @default(false)
+  admin_notes      String?
+  profile_img      String             @db.Text
+  EventParticipant CommunityEventParticipant[]
 }
-
 
 model Country {
   id           Int               @id @default(autoincrement())
   country_name String
   code         String?
   members      CommunityMember[]
+}
+
+model CommunityEventParticipant {
+  id        Int               @id @default(autoincrement())
+  event     CommunityEvent    @relation(fields: [eventId], references: [id])
+  eventId   Int
+  member    CommunityMember   @relation(fields: [memberId], references: [id])
+  memberId  Int
+  status    String?
+}
+
+model CommunityEventGroup {
+  id       Int              @id @default(autoincrement())
+  event    CommunityEvent   @relation(fields: [eventId], references: [id])
+  eventId  Int
+  group    CommunityGroup   @relation(fields: [groupId], references: [id])
+  groupId  Int
 }
 
 model JobHistory {
@@ -60,20 +74,27 @@ model CommunityGroup {
   created_at     DateTime          @default(now())
   members        CommunityMember[] @relation("MembersGroups")
   events         CommunityEvent[]  @relation("GroupEvents")
+  eventGroups CommunityEventGroup[]
+
 }
 
 model CommunityEvent {
-  id            Int               @id @default(autoincrement())
-  event_name    String            
-  start_date    DateTime
-  end_date      DateTime
-  location      String
-  price         Float?
-  type          String
+   id           Int              @id @default(autoincrement())
+  event_name   String
+  start_date   DateTime
+  end_date     DateTime
+  location     String
+  price        Float?
+  type         String
   descriptions String?
-  event_img      String?
+  event_img    String?
+
   participants CommunityMember[] @relation("EventParticipants")
+  eventParticipants CommunityEventParticipant[]
+
   groups       CommunityGroup[]  @relation("GroupEvents")
+  eventGroups CommunityEventGroup[]
+
 }
 
 model Contribution {

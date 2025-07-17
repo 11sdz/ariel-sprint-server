@@ -12,7 +12,7 @@ CREATE TABLE `CommunityMember` (
     `additional_info` VARCHAR(191) NULL,
     `wants_updates` BOOLEAN NULL DEFAULT false,
     `admin_notes` VARCHAR(191) NULL,
-    `profile_img` VARCHAR(191) NOT NULL,
+    `profile_img` TEXT NOT NULL,
 
     UNIQUE INDEX `CommunityMember_email_key`(`email`),
     PRIMARY KEY (`id`)
@@ -25,6 +25,16 @@ CREATE TABLE `Country` (
     `code` VARCHAR(191) NULL,
 
     PRIMARY KEY (`id`)
+) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
+-- CreateTable
+CREATE TABLE `EventParticipant` (
+    `eventId` INTEGER NOT NULL,
+    `memberId` INTEGER NOT NULL,
+    `joined_at` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
+    `status` VARCHAR(191) NULL,
+
+    PRIMARY KEY (`eventId`, `memberId`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 -- CreateTable
@@ -53,11 +63,14 @@ CREATE TABLE `CommunityGroup` (
 -- CreateTable
 CREATE TABLE `CommunityEvent` (
     `id` INTEGER NOT NULL AUTO_INCREMENT,
+    `event_name` VARCHAR(191) NOT NULL,
     `start_date` DATETIME(3) NOT NULL,
     `end_date` DATETIME(3) NOT NULL,
     `location` VARCHAR(191) NOT NULL,
     `price` DOUBLE NULL,
+    `type` VARCHAR(191) NOT NULL,
     `descriptions` VARCHAR(191) NULL,
+    `event_img` VARCHAR(191) NULL,
 
     PRIMARY KEY (`id`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
@@ -101,6 +114,12 @@ CREATE TABLE `_GroupEvents` (
 
 -- AddForeignKey
 ALTER TABLE `CommunityMember` ADD CONSTRAINT `CommunityMember_countryId_fkey` FOREIGN KEY (`countryId`) REFERENCES `Country`(`id`) ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE `EventParticipant` ADD CONSTRAINT `EventParticipant_eventId_fkey` FOREIGN KEY (`eventId`) REFERENCES `CommunityEvent`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE `EventParticipant` ADD CONSTRAINT `EventParticipant_memberId_fkey` FOREIGN KEY (`memberId`) REFERENCES `CommunityMember`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE `JobHistory` ADD CONSTRAINT `JobHistory_communityMemberId_fkey` FOREIGN KEY (`communityMemberId`) REFERENCES `CommunityMember`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
