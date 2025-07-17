@@ -33,25 +33,18 @@ async function suggestGroupsForUser(userId) {
     if (!user) throw new Error('User not found');
 
     const groups = await getGroupsController();
-    // console.log('All groups:', groups);
 
     const currentGroupIds = user.groups?.map((g) => g.id) || [];
     const nonMemberGroups = groups.filter((g) => !currentGroupIds.includes(g.id));
-    // console.log('Non-member groups:', nonMemberGroups);
 
     let relevantGroups = filterGroups(user, nonMemberGroups);
-    // console.log('Relevant groups after filter:', relevantGroups);
 
-    // אם הפילטר מחזיר ריק, נשתמש בכל קבוצות שאינן שייכות למשתמש
     if (relevantGroups.length === 0) {
-        // console.log('No relevant groups found by filterGroups, falling back to nonMemberGroups');
         relevantGroups = nonMemberGroups;
     }
 
-    // מפת ID => שם קבוצה (מהקבוצות הרלוונטיות)
     const groupsMap = new Map();
-    relevantGroups.forEach(g => groupsMap.set(g.id, g.community_name));
-    console.log('Groups map keys:', Array.from(groupsMap.keys()));
+    relevantGroups.forEach((g) => groupsMap.set(g.id, g.community_name));
 
     const prompt = `
 You are an assistant that suggests relevant community groups for users based on their profile.
@@ -93,9 +86,12 @@ Return JSON only, no extra text.
         max_tokens: 400,
     });
 
-    let aiContent = response.choices[0].message.content;
+    let aiContent = response.choices[0].message.content?.trim();
 
-    // אם הטקסט עטוף במרכאות - להסיר
+    if (aiContent.startsWith('```')) {
+        aiContent = aiContent.replace(/```json|```/g, '').trim();
+    }
+
     if (aiContent.startsWith('"') && aiContent.endsWith('"')) {
         aiContent = aiContent.slice(1, -1).replace(/\\"/g, '"');
     }
@@ -108,13 +104,12 @@ Return JSON only, no extra text.
         throw new Error('Failed to parse AI response JSON: ' + err.message);
     }
 
-    parsed.existingGroups = parsed.existingGroups.map(g => ({
+    parsed.existingGroups = parsed.existingGroups.map((g) => ({
         id: g.id,
         groupName: groupsMap.get(g.id) || 'Unknown Group',
         reason: g.reason,
     }));
 
-    console.log('✅ Final mapped existing groups:', parsed.existingGroups);
 
     return parsed;
 }

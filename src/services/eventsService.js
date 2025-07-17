@@ -48,7 +48,7 @@ const updateParticipant = async (req, res) => {
         console.log(req.body,req.params,"req boddy")
 
         const updatedParticipant = await updateParticipantByIdController({
-            where: { id: id, eventId }, // ✅ uses `id`, not `participantId`
+            where: { id: id, eventId }, 
             data: updateData,
         });
 
