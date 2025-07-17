@@ -34,63 +34,84 @@ async function suggestGroupsForUser(userId) {
 
     const groups = await getGroupsController();
 
-    const relevantGroups = filterGroups(user, groups);
+    const currentGroupIds = user.groups?.map((g) => g.id) || [];
+    const nonMemberGroups = groups.filter((g) => !currentGroupIds.includes(g.id));
+
+    let relevantGroups = filterGroups(user, nonMemberGroups);
+
+    if (relevantGroups.length === 0) {
+        relevantGroups = nonMemberGroups;
+    }
+
+    const groupsMap = new Map();
+    relevantGroups.forEach((g) => groupsMap.set(g.id, g.community_name));
 
     const prompt = `
-   You are an assistant that suggests relevant community groups for users based on their profile and available groups.
+You are an assistant that suggests relevant community groups for users based on their profile.
 
-Given the user profile and the list of relevant existing groups below, please provide a JSON object with two keys:
+Given the user profile below and the full list of available groups, choose which existing groups best fit the user.
 
-1. "existingGroups": an array of objects, each representing a group from the existing list that suits the user.
-2. "newGroups": an array of objects, each representing a new group that you recommend creating if no perfect match exists.
+⚠️ VERY IMPORTANT: For existing groups, return ONLY the group ID and a reason. DO NOT invent or guess the group name. The system will fill it in based on the ID.
 
-Each object should have these properties:
-- "groupName": the name of the group (string)
-- "reason": a brief explanation why this group is suitable or recommended (string)
+Return ONLY a valid JSON object with two keys: "existingGroups" and "newGroups".
+
+- "existingGroups": an array of groups, each with:
+    - "id": the group's ID (number)
+    - "reason": short explanation why this group fits the user
+
+- "newGroups": an array of new recommended groups, each with:
+    - "groupName": suggested group name (string)
+    - "reason": why this group is recommended
 
 User profile:
 - Full name: ${user.full_name}
 - Location: ${user.city || 'N/A'}
 - Job history:
-${user.job_history.map((j) => `  • ${j.role} at ${j.company_name}`).join('\n')}
+${user.job_history.map((j) => `  - ${j.role} at ${j.company_name}`).join('\n')}
 - Additional info: ${user.additional_info || 'N/A'}
 
-Relevant existing groups:
-${relevantGroups.map((g, i) => `${i + 1}. ${g.community_name} — ${g.description || 'No description'}`).join('\n')}
+Available groups (ID and exact name):
+${relevantGroups.map((g) => `- ID: ${g.id}, Name: ${g.community_name}`).join('\n')}
 
-Return ONLY a valid JSON object in the following format:
-
-{
-  "existingGroups": [
-    {
-      "groupName": "Group Name",
-      "reason": "Reason why this group matches the user"
-    }
-  ],
-  "newGroups": [
-    {
-      "groupName": "New Group Name",
-      "reason": "Reason why this new group is recommended"
-    }
-  ]
-}
-    `;
+Return JSON only, no extra text.
+`;
 
     const response = await openai.chat.completions.create({
         model: 'gpt-3.5-turbo',
         messages: [
-            {
-                role: 'system',
-                content: 'You are an assistant that suggests relevant community groups for users.',
-            },
+            { role: 'system', content: 'You are an assistant that suggests relevant community groups for users.' },
             { role: 'user', content: prompt },
         ],
         temperature: 0.7,
         max_tokens: 400,
     });
-    console.log(response.choices[0].message.content);
 
-    return response.choices[0].message.content;
+    let aiContent = response.choices[0].message.content?.trim();
+
+    if (aiContent.startsWith('```')) {
+        aiContent = aiContent.replace(/```json|```/g, '').trim();
+    }
+
+    if (aiContent.startsWith('"') && aiContent.endsWith('"')) {
+        aiContent = aiContent.slice(1, -1).replace(/\\"/g, '"');
+    }
+
+    let parsed;
+    try {
+        parsed = JSON.parse(aiContent);
+    } catch (err) {
+        console.error('❌ Failed to parse AI JSON:', aiContent);
+        throw new Error('Failed to parse AI response JSON: ' + err.message);
+    }
+
+    parsed.existingGroups = parsed.existingGroups.map((g) => ({
+        id: g.id,
+        groupName: groupsMap.get(g.id) || 'Unknown Group',
+        reason: g.reason,
+    }));
+
+
+    return parsed;
 }
 
 module.exports = {

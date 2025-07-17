@@ -69,25 +69,25 @@ const createMemberLinkedinController = async (data) => {
 
 
     const newMember = await prisma.communityMember.create({
-        data: {
-            full_name,
-            email,
-            profile_img,
-            phone,
-            city,
-            wants_updates,
-            additional_info,
-            linkedin_url,
-            facebook_url,
-            community_value,
-            countryId,
-            job_history: {
-                create: job_history,  // מערך של אובייקטים
-            },
-            groups: {
-                connect: groups,      // מערך של אובייקטים {id: number}
-            },
+      data: {
+        full_name,
+        email,
+        profile_img,
+        phone,
+        city,
+        wants_updates,
+        additional_info,
+        linkedin_url,
+        facebook_url,
+        community_value,
+        countryId,
+        job_history: {
+          create: job_history, 
         },
+        groups: {
+          connect: groups,    
+        },
+      },
     });
 
     return newMember;
@@ -128,10 +128,35 @@ const updateMemberController = async ({ where, data }) => {
     }
 };
 
+const updateMemberGroupsController = async ({ memberId, groupIds }) => {
+    try {
+
+        const validGroupIds = groupIds.filter(id => id !== null && id !== undefined);
+
+        const updatedMember = await prisma.communityMember.update({
+            where: { id: memberId },
+            data: {
+                groups: {
+                    connect: validGroupIds.map((id) => ({ id })), 
+                },
+            },
+            include: {
+                groups: true, 
+            },
+        });
+
+        return updatedMember;
+    } catch (error) {
+        console.error('Error in updateMemberGroupsController:', error);
+        throw error;
+    }
+};
+
+
 const getMemberByIdController = async ({ where }) => {
     try {
         const getMember = await prisma.communityMember.findUnique({
-            where, // pass inside the options object
+            where, 
             include: {
                 job_history: {
                     select: {
@@ -160,5 +185,6 @@ module.exports = {
     createMemberController,
     getMembersController,
     updateMemberController,
-    createMemberLinkedinController
+    createMemberLinkedinController,
+    updateMemberGroupsController
 };

@@ -1,13 +1,12 @@
 const { PrismaClient } = require("@prisma/client");
 const prisma = new PrismaClient();
-const { members } = require("../members"); // ודא שזה הנתיב הנכון
+const { members } = require("../members"); 
 
 async function seed() {
 
     for (const member of members) {
         const countryName = member.location.country;
 
-        // מצא או צור מדינה
         let country = await prisma.country.findFirst({
             where: { country_name: countryName },
         });
@@ -18,7 +17,6 @@ async function seed() {
             });
         }
 
-        // צור את המשתמש
         const newMember = await prisma.communityMember.create({
             data: {
                 full_name: member.fullName,
@@ -30,11 +28,10 @@ async function seed() {
                 facebook_url: member.facebookURL,
                 additional_info: member.additionalInfo,
                 wants_updates: member.wantsUpdates,
-                profile_img: member.profile_img, // אפשר לשנות
+                profile_img: member.profile_img,
             },
         });
 
-        // היסטוריית עבודה (JobHistory)
         for (const job of member.jobs_history) {
             await prisma.jobHistory.create({
                 data: {
@@ -50,7 +47,6 @@ async function seed() {
             });
         }
 
-        // קבוצות (CommunityGroup)
         for (const groupName of member.groups) {
             let group = await prisma.communityGroup.findFirst({
                 where: { community_name: groupName },
@@ -62,7 +58,6 @@ async function seed() {
                 });
             }
 
-            // חבר את המשתמש לקבוצה
             await prisma.communityMember.update({
                 where: { id: newMember.id },
                 data: {
