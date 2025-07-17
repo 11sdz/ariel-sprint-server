@@ -93,7 +93,7 @@ Return JSON only, no extra text.
         max_tokens: 400,
     });
 
-    let aiContent = response.choices[0].message.content;
+    // let aiContent = response.choices[0].message.content;
 
     // אם הטקסט עטוף במרכאות - להסיר
     if (aiContent.startsWith('"') && aiContent.endsWith('"')) {
