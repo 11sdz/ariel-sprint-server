@@ -128,10 +128,35 @@ const updateMemberController = async ({ where, data }) => {
     }
 };
 
+const updateMemberGroupsController = async ({ memberId, groupIds }) => {
+    try {
+
+        const validGroupIds = groupIds.filter(id => id !== null && id !== undefined);
+
+        const updatedMember = await prisma.communityMember.update({
+            where: { id: memberId },
+            data: {
+                groups: {
+                    connect: validGroupIds.map((id) => ({ id })), // removes existing and sets new ones
+                },
+            },
+            include: {
+                groups: true, // include groups in response if needed
+            },
+        });
+
+        return updatedMember;
+    } catch (error) {
+        console.error('Error in updateMemberGroupsController:', error);
+        throw error;
+    }
+};
+
+
 const getMemberByIdController = async ({ where }) => {
     try {
         const getMember = await prisma.communityMember.findUnique({
-            where, // pass inside the options object
+            where, 
             include: {
                 job_history: {
                     select: {
@@ -160,5 +185,6 @@ module.exports = {
     createMemberController,
     getMembersController,
     updateMemberController,
-    createMemberLinkedinController
+    createMemberLinkedinController,
+    updateMemberGroupsController
 };

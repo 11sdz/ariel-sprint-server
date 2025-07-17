@@ -4,6 +4,7 @@ const {
     updateMemberController,
     getMemberByIdController,
     createMemberLinkedinController,
+    updateMemberGroupsController,
 } = require('../controllers/memberController');
 const { faker } = require('@faker-js/faker');
 const { suggestGroupsForUser } = require('../openai/suggestGroups');
@@ -92,10 +93,26 @@ const updateMember = async (req, res) => {
     }
 };
 
+const updateMemberGroups = async (req, res) => {
+    try {
+        const memberId = Number(req.params.id);
+        const { groupIds } = req.body; // expecting: { groupIds: [1, 2, 3] }
+
+        const updatedMember = await updateMemberGroupsController({
+            memberId,
+            groupIds,
+        });
+
+        res.json(updatedMember);
+    } catch (error) {
+        console.error('Error updating member groups:', error);
+        res.status(500).json({ error: 'Failed to update member groups' });
+    }
+};
+
 const getMemberById = async (req, res) => {
     try {
         const memberId = Number(req.params.id);
-        console.log('IDDD', memberId);
         const getMember = await getMemberByIdController({
             where: { id: memberId },
         });
@@ -109,8 +126,7 @@ const getMemberById = async (req, res) => {
 const getSuggestedGroups = async (req, res) => {
     try {
         const userId = Number(req.params.memberId);
-        console.log('params:', req.params);
-        
+
         if (isNaN(userId)) {
             return res.status(400).json({ error: 'Invalid user ID' });
         }
@@ -124,4 +140,12 @@ const getSuggestedGroups = async (req, res) => {
     }
 };
 
-module.exports = { getMemberById, createMember, getAllMembers, updateMember, createMemberFromLinkedIn, getSuggestedGroups };
+module.exports = {
+    getMemberById,
+    createMember,
+    getAllMembers,
+    updateMember,
+    createMemberFromLinkedIn,
+    getSuggestedGroups,
+    updateMemberGroups,
+};
