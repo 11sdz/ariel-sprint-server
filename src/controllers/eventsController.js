@@ -50,25 +50,46 @@ const createEventController = async (data) => {
 
 const getEventByIdController = async ({ where }) => {
     try {
-        const getEvent = await prisma.communityEvent.findUnique({
+        const event = await prisma.communityEvent.findUnique({
             where,
-            include: {
-                groups: {
+        });
+
+        if (!event) return null;
+
+        const groups = await prisma.communityEventGroup.findMany({
+            where: { eventId: where.id },
+            select: {
+                group: {
                     select: {
                         community_name: true,
                     },
                 },
-                participants: {
+            },
+        });
+
+        const participants = await prisma.communityEventParticipant.findMany({
+            where: { eventId: where.id },
+            select: {
+                id: true,
+                eventId: true,
+                memberId: true,
+                status: true,
+                member: {
                     select: {
                         full_name: true,
                         email: true,
                         phone: true,
-                        // add other fields you want
+                        profile_img: true,
                     },
                 },
             },
         });
-        return getEvent;
+
+        return {
+            ...event,
+            groups: groups.map((g) => g.group),
+            participants,
+        };
     } catch (error) {
         console.error("Error in getEventByIdController:", error);
         throw error;
