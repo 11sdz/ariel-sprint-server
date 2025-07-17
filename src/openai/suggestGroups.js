@@ -88,7 +88,7 @@ Return ONLY a valid JSON object in the following format:
         temperature: 0.7,
         max_tokens: 400,
     });
-    console.log(response.choices[0].message.content);
+    // console.log(response.choices[0].message.content);
 
     return response.choices[0].message.content;
 }
